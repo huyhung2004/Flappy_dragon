@@ -11,22 +11,19 @@ public class GameThread extends JPanel implements Runnable{
     private GameScreen context;
     
     private Thread thread;
-    
-    private Graphics ThisGraphics;
-    
+
     public static int FPS = 70;
     
     private BufferedImage buffImage;
-    
+
     private int MasterWidth, MasterHeight;
-    public static float scaleX_ = 1, scaleY_ = 1;
     
     public GameThread(GameScreen context){
         this.context = context;
-        
+
         MasterWidth = context.CUSTOM_WIDTH;
         MasterHeight = context.CUSTOM_HEIGHT;
-        
+
         this.thread = new Thread(this);
         
     }
@@ -38,7 +35,6 @@ public class GameThread extends JPanel implements Runnable{
         g.fillRect(0, 0, context.CUSTOM_WIDTH, context.CUSTOM_HEIGHT);
         Graphics2D g2 = (Graphics2D)g;
         if(buffImage!=null){
-            g2.scale(scaleX_, scaleY_);
             g2.drawImage(buffImage, 0, 0, this);
         }
     }
@@ -48,9 +44,6 @@ public class GameThread extends JPanel implements Runnable{
         
         context.CUSTOM_WIDTH = this.getWidth();
         context.CUSTOM_HEIGHT = this.getHeight();
-        
-        scaleX_ = (float)context.CUSTOM_WIDTH/(float)MasterWidth;
-        scaleY_ = (float)context.CUSTOM_HEIGHT/(float)MasterHeight;
     }
 
     
@@ -68,7 +61,7 @@ public class GameThread extends JPanel implements Runnable{
             
             UpdateSize();
             
-            context.GAME_UPDATE(System.currentTimeMillis());
+            context.GAME_UPDATE();
             try{
                 
                 buffImage = new BufferedImage(MasterWidth, MasterHeight, BufferedImage.TYPE_INT_ARGB);

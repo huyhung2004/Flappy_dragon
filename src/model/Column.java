@@ -12,7 +12,7 @@ public class Column extends Objects {
         rec=new Rectangle((int) x, (int) y, (int) w, (int) h);
     }
     public void update(){
-        setPosX(getPosX()-2f);
+        setPosX(getPosX()-3f);
         this.rec.setLocation((int) this.getPosX(),(int) this.getPosY());
     }
     public Rectangle getRec(){

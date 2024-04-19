@@ -4,6 +4,7 @@ import model.Columns;
 import model.Dragon;
 import view.AFrameOnImage;
 import view.Animation;
+import view.GamePanel;
 import view.GameScreen;
 
 import javax.imageio.ImageIO;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class flappy_tap extends GameScreen {
+    private Boolean freeze=true;
     private boolean mouseIsPressed = false;
     private long mousePressedTime = 0;
     private Boolean test=false;
@@ -34,6 +36,7 @@ public class flappy_tap extends GameScreen {
 
     public flappy_tap(){
         super(750,600);
+        stt=0;
         try {
             dragon_image = ImageIO.read(new File("image/dragon.png"));
 
@@ -41,10 +44,12 @@ public class flappy_tap extends GameScreen {
 
         }
         dragon_animation=new Animation();
+
         AFrameOnImage  f;
         f=new AFrameOnImage(0,0,111,99);
         dragon_animation.AddFrame(f);
 
+        menu();
         hold= new Thread(this::hold_time);
 
         hold.start();
@@ -82,7 +87,7 @@ public class flappy_tap extends GameScreen {
         columns.Resetcolumns();
     }
     @Override
-    public void GAME_UPDATE(long deltaTime) {
+    public void GAME_UPDATE() {
 
         if (current_Screen==begin_Screen){
             reSetgame();
@@ -125,69 +130,87 @@ public class flappy_tap extends GameScreen {
     @Override
     public void GAME_PAINT(Graphics2D g2) {
         g2.setColor(Color.decode("#b8daef"));
-        g2.fillRect(0,0,MASTER_WIDTH,MASTER_HEIGHT);
+        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
         columns.paint(g2);
 
-        g2.setColor(Color.BLACK); // Màu viền
-        g2.draw(dragonn.getRec());
+//        g2.setColor(Color.BLACK); // Màu viền
+//        g2.draw(dragonn.getRec());
 
-        if (dragonn.getIsflying()==1){
-            dragon_animation.PaintAnims((int) dragonn.getPosX(),(int) dragonn.getPosY(), dragon_image,g2,0,0);
+        dragon_animation.PaintAnims((int) dragonn.getPosX(),(int) dragonn.getPosY(), dragon_image,g2);
 
-        }else if (dragonn.getIsflying()==0) {
-            dragon_animation.PaintAnims((int) dragonn.getPosX(),(int) dragonn.getPosY(), dragon_image,g2,0,0);
-        }
-        else {
-            dragon_animation.PaintAnims((int) dragonn.getPosX(),(int) dragonn.getPosY(), dragon_image,g2,0,0);
-        }
+
 
         if (current_Screen==begin_Screen){
-            g2.setColor(Color.red);
-            g2.drawString("Press space to play game",200,300);
+//            g2.setColor(Color.red);
+//            g2.drawString("Press space to play game",200,300);
+
+            iconDragon.PaintAnims((int) dragonh.getPosX(),(int) dragonh.getPosY(), dragonImage,g2);
+            iconMap.PaintAnims((int) maph.getPosX(),(int) maph.getPosY(), mapImage,g2);
+            animationTap.PaintAnims((int) howToPlay.getPosX(),(int) howToPlay.getPosY(), tapImage,g2);
 
         }else if (current_Screen == gameover_Screen) {
             g2.setColor(Color.red);
             g2.drawString("game over",200,300);
 
         }
-        g2.setColor(Color.red);
-        g2.drawString("POINT:"+point,30,40);
+        if (current_Screen==gameplay_Screen || current_Screen==gameover_Screen){
+            g2.setColor(Color.red);
+            g2.drawString("POINT:"+point,30,40);
+        }
+
     }
 
 
 
     @Override
     public void MOUSE_ACTION(java.awt.event.MouseEvent e, int Event) {
-        if (Event == java.awt.event.MouseEvent.MOUSE_PRESSED){
-            mousePressedTime = System.currentTimeMillis();
-            mouseIsPressed = true;
-            test=false;
-            AFrameOnImage  f;
-            f=new AFrameOnImage(111,0,111,99);
-            dragon_animation.AddFrame(f);
+        if (e.getY() > (CUSTOM_HEIGHT *11 )/ 12 && current_Screen==begin_Screen) {
+            if (e.getX()>CUSTOM_WIDTH/2){
+                setVisible(false);
+
+            }else {
+                setVisible(false);
+                new GamePanel();
+            }
+
+        } else {
+            if (Event == java.awt.event.MouseEvent.MOUSE_PRESSED){
+                mousePressedTime = System.currentTimeMillis();
+                mouseIsPressed = true;
+                freeze=false;
+                test=false;
+                AFrameOnImage  f;
+                f=new AFrameOnImage(111,0,111,99);
+                dragon_animation.AddFrame(f);
 
 
 
-        }
-        if (Event == MouseEvent.MOUSE_RELEASED){
+            }
+            if (Event == MouseEvent.MOUSE_RELEASED&&freeze==false){
 
-            mouseIsPressed = false;
-            AFrameOnImage  f;
-            f=new AFrameOnImage(0,0,111,99);
-            dragon_animation.AddFrame(f);
-            if (current_Screen==begin_Screen){
-                current_Screen=gameplay_Screen;
 
-            }else if (current_Screen == gameplay_Screen){
-                if (test==false){
-                    dragonn.fly();
+                mouseIsPressed = false;
+                AFrameOnImage  f;
+                f=new AFrameOnImage(0,0,111,99);
+                dragon_animation.AddFrame(f);
+                if (current_Screen==begin_Screen){
+                    current_Screen=gameplay_Screen;
+
+                }else if (current_Screen == gameplay_Screen){
+                    if (test==false){
+                        dragonn.fly();
+                    }
+                }else if (current_Screen==gameover_Screen){
+                    current_Screen=begin_Screen;
+
                 }
-            }else if (current_Screen==gameover_Screen){
-                current_Screen=begin_Screen;
+
 
             }
 
         }
+
+
     }
 
 }

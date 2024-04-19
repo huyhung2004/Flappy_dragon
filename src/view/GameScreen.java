@@ -1,55 +1,83 @@
 package view;
 
+import model.Dragon;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 public abstract class GameScreen extends JFrame implements java.awt.event.MouseListener, java.awt.event.MouseMotionListener {
 
     public int x_mouse ;
+    public static int stt=0;
     public int y_mouse;
     public int CUSTOM_WIDTH  = 500;
     public int CUSTOM_HEIGHT = 500;
 
     private GameThread G_Thread;
 
-    public static int MASTER_WIDTH = 500, MASTER_HEIGHT = 500;
-
-    public GameScreen(){
-        InitThread();
-        InitScreen();
-    }
-
-    public void RegisterImage(int id, BufferedImage image){
-
-
-    }
-
-    public BufferedImage getImageWithID(int id){
-        return null;
-    }
+    public Animation iconMap,iconDragon,animationTap,animationHold,animationFollow;
+    public Dragon maph,dragonh,howToPlay;
+    public BufferedImage dragonImage,mapImage,tapImage,holdImage,followImage;
 
     public GameScreen(int w, int h){
         Toolkit toolkit =this.getToolkit();
         Dimension dimension=toolkit.getScreenSize();
 
         this.setBounds((dimension.width-w)/2,(dimension.height-h)/2,w,h);
-
         this.CUSTOM_WIDTH = w;
         this.CUSTOM_HEIGHT = h;
-        MASTER_WIDTH = CUSTOM_WIDTH;
-        MASTER_HEIGHT = CUSTOM_HEIGHT;
         InitThread();
         InitScreen();
     }
+    public void menu(){
+        try {
+            dragonImage = ImageIO.read(new File("image/dragonchoose.jpg"));
+            mapImage = ImageIO.read(new File("image/map.jpg"));
+            tapImage=ImageIO.read(new File("image/tap.png"));
+            followImage=ImageIO.read(new File("image/follow.png"));
+            holdImage=ImageIO.read(new File("image/hold.png"));
 
+        } catch (IOException e) {}
+        iconDragon=new Animation();
+        iconMap=new Animation();
+        animationTap=new Animation();
+        animationHold=new Animation();
+        animationFollow=new Animation();
+
+        AFrameOnImage frameDragon,frameMap,frameTap,frameHold,frameFollow;
+
+        frameMap = new AFrameOnImage(0, 0, 50, 35);
+        iconMap.AddFrame(frameMap);
+        maph=new Dragon(500,510,50,35);
+
+        frameDragon = new AFrameOnImage(0, 0, 50, 55);
+        iconDragon.AddFrame(frameDragon);
+        dragonh=new Dragon(250,500,50,55);
+
+        frameTap = new AFrameOnImage(0,0,40,40);
+        animationTap.AddFrame(frameTap);
+        howToPlay=new Dragon(385,315,40,40);
+
+        frameHold = new AFrameOnImage(0,0,40,40);
+        animationHold.AddFrame(frameHold);
+
+        frameFollow = new AFrameOnImage(0,0,40,40);
+        animationFollow.AddFrame(frameFollow);
+
+    }
     private void InitScreen(){
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         setSize(CUSTOM_WIDTH, CUSTOM_HEIGHT);
+        this.setTitle("Flappy Dragon");
+        this.setResizable(false);
         setVisible(true);
 
     }
@@ -65,7 +93,7 @@ public abstract class GameScreen extends JFrame implements java.awt.event.MouseL
 
 
 
-    public abstract void GAME_UPDATE(long deltaTime);
+    public abstract void GAME_UPDATE();
     public abstract void GAME_PAINT(Graphics2D g2);
 
 

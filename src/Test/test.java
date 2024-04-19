@@ -4,6 +4,7 @@ package Test;
 import Controll.flappy_follow;
 import Controll.flappy_hold;
 import Controll.flappy_tap;
+import view.GamePanel;
 
 public class test {
 

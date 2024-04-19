@@ -12,7 +12,7 @@ public class Animation {
         frames = sprite;
     }
     
-    public void PaintAnims(int x, int y, BufferedImage image, Graphics2D g2, int anchor, float rotation){
-        frames.Paint(x, y, image, g2, anchor, rotation);
+    public void PaintAnims(int x, int y, BufferedImage image, Graphics2D g2){
+        frames.Paint(x, y, image, g2);
     }
 }

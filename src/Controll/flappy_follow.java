@@ -4,6 +4,7 @@ import model.Columns;
 import model.Dragon;
 import view.AFrameOnImage;
 import view.Animation;
+import view.GamePanel;
 import view.GameScreen;
 
 import javax.imageio.ImageIO;
@@ -29,16 +30,17 @@ public class flappy_follow extends GameScreen {
 
     public flappy_follow() {
         super(750, 600);
+        stt=2;
         try {
-            dragon_image = ImageIO.read(new File("image/dragon2.png"));
+            dragon_image = ImageIO.read(new File("image/dragon3.png"));
         } catch (IOException e) {
         }
         dragon_animation=new Animation();
         AFrameOnImage f;
-        f = new AFrameOnImage(0, 0, 111, 52);
+        f = new AFrameOnImage(0, 25, 111, 49);
         dragon_animation.AddFrame(f);
-
-        dragonn = new Dragon(350, 250, 108, 36);
+        menu();
+        dragonn = new Dragon(350, 250, 111, 51);
         columns = new Columns();
         BeginGame();
     }
@@ -52,7 +54,7 @@ public class flappy_follow extends GameScreen {
     }
 
     @Override
-    public void GAME_UPDATE(long deltaTime) {
+    public void GAME_UPDATE() {
 
         if (current_Screen == begin_Screen) {
             reSetgame();
@@ -83,42 +85,57 @@ public class flappy_follow extends GameScreen {
     @Override
     public void GAME_PAINT(Graphics2D g2) {
         g2.setColor(Color.decode("#b8daef"));
-        g2.fillRect(0,0,MASTER_WIDTH,MASTER_HEIGHT);
+        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
         columns.paint(g2);
 
-        g2.setColor(Color.BLACK); // Màu viền
-        g2.draw(dragonn.getRec());
+//        g2.setColor(Color.BLACK); // Màu viền
+//        g2.draw(dragonn.getRec());
 
-        dragon_animation.PaintAnims((int) dragonn.getPosX(), (int) dragonn.getPosY(), dragon_image, g2, 0, 0);
+        dragon_animation.PaintAnims((int) dragonn.getPosX(), (int) dragonn.getPosY(), dragon_image, g2);
 
         if (current_Screen == begin_Screen) {
-            g2.setColor(Color.red);
-            g2.drawString("Press space to play game", 200, 300);
+//            g2.setColor(Color.red);
+//            g2.drawString("Press space to play game", 200, 300);
+            iconDragon.PaintAnims((int) dragonh.getPosX(),(int) dragonh.getPosY(), dragonImage,g2);
+            iconMap.PaintAnims((int) maph.getPosX(),(int) maph.getPosY(), mapImage,g2);
+            animationFollow.PaintAnims((int) howToPlay.getPosX(),(int) howToPlay.getPosY(), followImage,g2);
 
         } else if (current_Screen == gameover_Screen) {
             g2.setColor(Color.red);
-            g2.drawString("game over", 200, 300);
+            g2.drawString("game over",200,300);
 
         }
-        g2.setColor(Color.red);
-        g2.drawString("POINT:"+point,30,60);
+        if (current_Screen==gameplay_Screen || current_Screen==gameover_Screen){
+            g2.setColor(Color.red);
+            g2.drawString("POINT:"+point,30,40);
+        }
     }
 
     @Override
     public void MOUSE_ACTION(MouseEvent e, int Event) {
-        if (Event == java.awt.event.MouseEvent.MOUSE_PRESSED){
+        if (e.getY() > (CUSTOM_HEIGHT *11 )/ 12 && current_Screen==begin_Screen) {
+            if (e.getX()>CUSTOM_WIDTH/2){
+                setVisible(false);
 
-            if (current_Screen==begin_Screen){
-                current_Screen=gameplay_Screen;
-
-            }else if (current_Screen == gameplay_Screen){
-
-            }else if (current_Screen==gameover_Screen){
-                current_Screen=begin_Screen;
-
+            }else {
+                setVisible(false);
+                new GamePanel();
             }
 
-        }
+        } else {
+            if (Event == java.awt.event.MouseEvent.MOUSE_PRESSED) {
 
+                if (current_Screen == begin_Screen) {
+                    current_Screen = gameplay_Screen;
+
+                } else if (current_Screen == gameplay_Screen) {
+
+                } else if (current_Screen == gameover_Screen) {
+                    current_Screen = begin_Screen;
+
+                }
+
+            }
+        }
     }
 }

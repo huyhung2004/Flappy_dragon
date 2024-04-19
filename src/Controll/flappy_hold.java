@@ -4,6 +4,7 @@ import model.Columns;
 import model.Dragon;
 import view.AFrameOnImage;
 import view.Animation;
+import view.GamePanel;
 import view.GameScreen;
 
 import javax.imageio.ImageIO;
@@ -31,6 +32,7 @@ public class flappy_hold extends GameScreen {
 
     public flappy_hold() {
         super(750, 600);
+        stt=1;
         try {
             dragon_image = ImageIO.read(new File("image/dragon2.png"));
         } catch (IOException e) {
@@ -39,9 +41,12 @@ public class flappy_hold extends GameScreen {
         AFrameOnImage f;
         f = new AFrameOnImage(0, 0, 111, 52);
         dragon_animation.AddFrame(f);
+
+        menu();
         hold= new Thread(this::hold_time);
 
         hold.start();
+
 
 
         dragonn = new Dragon(350, 250, 108, 30);
@@ -76,7 +81,7 @@ public class flappy_hold extends GameScreen {
     }
 
     @Override
-    public void GAME_UPDATE(long deltaTime) {
+    public void GAME_UPDATE() {
 
         if (current_Screen == begin_Screen) {
             reSetgame();
@@ -114,48 +119,63 @@ public class flappy_hold extends GameScreen {
     @Override
     public void GAME_PAINT(Graphics2D g2) {
         g2.setColor(Color.decode("#b8daef"));
-        g2.fillRect(0,0,MASTER_WIDTH,MASTER_HEIGHT);
+        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
         columns.paint(g2);
 
-        g2.setColor(Color.BLACK); // Màu viền
-        g2.draw(dragonn.getRec());
+//        g2.setColor(Color.BLACK); // Màu viền
+//        g2.draw(dragonn.getRec());
 
-        dragon_animation.PaintAnims((int) dragonn.getPosX(), (int) (dragonn.getPosY()), dragon_image, g2, 0, 0);
+        dragon_animation.PaintAnims((int) dragonn.getPosX(), (int) (dragonn.getPosY()), dragon_image, g2);
 
         if (current_Screen == begin_Screen) {
-            g2.setColor(Color.red);
-            g2.drawString("Press space to play game", 200, 300);
+//            g2.setColor(Color.red);
+//            g2.drawString("Press space to play game", 200, 300);
+            iconDragon.PaintAnims((int) dragonh.getPosX(),(int) dragonh.getPosY(), dragonImage,g2);
+            iconMap.PaintAnims((int) maph.getPosX(),(int) maph.getPosY(), mapImage,g2);
+            animationTap.PaintAnims((int) howToPlay.getPosX(),(int) howToPlay.getPosY(), holdImage,g2);
 
         } else if (current_Screen == gameover_Screen) {
             g2.setColor(Color.red);
-            g2.drawString("game over", 200, 300);
+            g2.drawString("game over",200,300);
 
         }
-        g2.setColor(Color.red);
-        g2.drawString("POINT:"+point,30,60);
+        if (current_Screen==gameplay_Screen || current_Screen==gameover_Screen){
+            g2.setColor(Color.red);
+            g2.drawString("POINT:"+point,30,40);
+        }
     }
 
     @Override
     public void MOUSE_ACTION(MouseEvent e, int Event) {
-            if (Event == java.awt.event.MouseEvent.MOUSE_PRESSED){
+        if (e.getY() > (CUSTOM_HEIGHT *11 )/ 12 && current_Screen==begin_Screen) {
+            if (e.getX()>CUSTOM_WIDTH/2){
+                setVisible(false);
+
+            }else {
+                setVisible(false);
+                new GamePanel();
+            }
+
+        } else {
+            if (Event == java.awt.event.MouseEvent.MOUSE_PRESSED) {
                 mousePressedTime = System.currentTimeMillis();
                 mouseIsPressed = true;
-                if (current_Screen==begin_Screen){
-                    current_Screen=gameplay_Screen;
+                if (current_Screen == begin_Screen) {
+                    current_Screen = gameplay_Screen;
 
-                }else if (current_Screen == gameplay_Screen){
+                } else if (current_Screen == gameplay_Screen) {
 
-                }else if (current_Screen==gameover_Screen){
-                    current_Screen=begin_Screen;
+                } else if (current_Screen == gameover_Screen) {
+                    current_Screen = begin_Screen;
 
                 }
 
             }
-        if (Event == MouseEvent.MOUSE_RELEASED) {
-            mouseIsPressed = false;
+            if (Event == MouseEvent.MOUSE_RELEASED) {
+                mouseIsPressed = false;
 
+            }
         }
-
     }
 }
 
