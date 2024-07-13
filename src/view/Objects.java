@@ -4,7 +4,7 @@ public class Objects {
     
     private float posX, posY;
     private float w, h;
-    
+    public static Boolean allowSound=true,allowMusic=true,allow=true;
     public Objects(){
          posX = posY = w = h = 0;
     }

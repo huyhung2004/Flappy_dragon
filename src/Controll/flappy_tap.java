@@ -1,11 +1,14 @@
 package Controll;
 
 import model.Columns;
-import model.Dragon;
+import model.Entity;
 import view.AFrameOnImage;
 import view.Animation;
-import view.GamePanel;
+import view.menu.GamePanel;
 import view.GameScreen;
+import view.menu.Setting;
+
+import java.io.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,17 +17,21 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import static view.Objects.*;
+
 public class flappy_tap extends GameScreen {
     private Boolean freeze=true;
     private boolean mouseIsPressed = false;
     private long mousePressedTime = 0;
     private Boolean test=false;
     private int point=0;
-
+    private int max;
     private BufferedImage dragon_image;
     private Animation dragon_animation;
     public static double g=0.1f;
-    private Dragon dragonn;
+    public Entity dragonn;
+    public static Entity h=new Entity();
+
     private Columns columns;
     private int begin_Screen=0;
     private int gameover_Screen=2;
@@ -32,12 +39,18 @@ public class flappy_tap extends GameScreen {
     private int current_Screen=begin_Screen;
     private Thread hold;
 
-
-
     public flappy_tap(){
         super(750,600);
         stt=0;
+
         try {
+            BufferedReader reader = new BufferedReader(new FileReader("image/HighscoreTap.txt"));
+            String maxStr = reader.readLine();
+            if (maxStr != null) {
+                max = Integer.parseInt(maxStr);
+            }
+            reader.close();
+
             dragon_image = ImageIO.read(new File("image/dragon.png"));
 
         } catch (IOException e) {
@@ -54,9 +67,13 @@ public class flappy_tap extends GameScreen {
 
         hold.start();
 
-        dragonn= new Dragon(350,250,108,60);
+        dragonn= new Entity(350,250,108,60);
         columns=new Columns();
+        if (allowMusic){
+            h.game_sound.playLoop();
+            allowMusic=false;
 
+        }
         BeginGame();
     }
     public void hold_time(){
@@ -88,9 +105,17 @@ public class flappy_tap extends GameScreen {
     }
     @Override
     public void GAME_UPDATE() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("image/HighscoreTap.txt"));
+            writer.write(String.valueOf(max));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         if (current_Screen==begin_Screen){
             reSetgame();
+
 
         }else if (current_Screen == gameplay_Screen){
             dragonn.update_tap();
@@ -107,7 +132,7 @@ public class flappy_tap extends GameScreen {
             for (int i = 0; i < Columns.size; i++) {
                 if (dragonn.getRec().intersects(columns.getColumn(i).getRec())){
                     current_Screen=gameover_Screen;
-                    if (current_Screen==gameover_Screen){
+                    if (current_Screen==gameover_Screen&&allowSound){
                         dragonn.pong_sound.play();
                     }
                 }
@@ -116,7 +141,11 @@ public class flappy_tap extends GameScreen {
                 if (dragonn.getPosX()>columns.getColumn(i).getPosX()&& !columns.getColumn(i).getBehinddragon()&&i%2==0){
 
                     point++;
-                    dragonn.point_sound.play();
+                    if (max<=point) max=point;
+                    if (allowSound){
+                        dragonn.point_sound.play();
+                    }
+
                     columns.getColumn(i).setBehinddragon(true);
                 }
             }
@@ -129,13 +158,15 @@ public class flappy_tap extends GameScreen {
 
     @Override
     public void GAME_PAINT(Graphics2D g2) {
-        g2.setColor(Color.decode("#b8daef"));
-        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
+//        g2.setColor(Color.decode("#b8daef"));
+//        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
         columns.paint(g2);
-
+//
 //        g2.setColor(Color.BLACK); // Màu viền
 //        g2.draw(dragonn.getRec());
-
+//        for (int i = 0; i < 6; i++) {
+//            g2.draw(columns.getColumn(i).getRec());
+//        }
         dragon_animation.PaintAnims((int) dragonn.getPosX(),(int) dragonn.getPosY(), dragon_image,g2);
 
 
@@ -149,13 +180,14 @@ public class flappy_tap extends GameScreen {
             animationTap.PaintAnims((int) howToPlay.getPosX(),(int) howToPlay.getPosY(), tapImage,g2);
 
         }else if (current_Screen == gameover_Screen) {
-            g2.setColor(Color.red);
-            g2.drawString("game over",200,300);
+            g2.setColor(Color.white);
+            g2.drawString("GAME OVER",200,300);
 
         }
         if (current_Screen==gameplay_Screen || current_Screen==gameover_Screen){
-            g2.setColor(Color.red);
-            g2.drawString("POINT:"+point,30,40);
+            g2.setColor(Color.white);
+            g2.drawString("POINT: "+point,30,40);
+            g2.drawString("MAX: "+max,30,60);
         }
 
     }
@@ -166,11 +198,14 @@ public class flappy_tap extends GameScreen {
     public void MOUSE_ACTION(java.awt.event.MouseEvent e, int Event) {
         if (e.getY() > (CUSTOM_HEIGHT *11 )/ 12 && current_Screen==begin_Screen) {
             if (e.getX()>CUSTOM_WIDTH/2){
-                setVisible(false);
-
-            }else {
-                setVisible(false);
+                dispose();
                 new GamePanel();
+            }else {
+
+
+                dispose();
+                new Setting();
+
             }
 
         } else {
@@ -184,10 +219,8 @@ public class flappy_tap extends GameScreen {
                 dragon_animation.AddFrame(f);
 
 
-
             }
             if (Event == MouseEvent.MOUSE_RELEASED&&freeze==false){
-
 
                 mouseIsPressed = false;
                 AFrameOnImage  f;
@@ -202,15 +235,8 @@ public class flappy_tap extends GameScreen {
                     }
                 }else if (current_Screen==gameover_Screen){
                     current_Screen=begin_Screen;
-
                 }
-
-
             }
-
         }
-
-
     }
-
 }

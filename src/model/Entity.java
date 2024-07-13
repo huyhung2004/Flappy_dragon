@@ -8,13 +8,18 @@ import view.SoundPlayer;
 import java.awt.*;
 import java.io.File;
 
-public class Dragon extends Objects {
+public class Entity extends Objects {
     public float vecto=0;
     private int isflying=2;
     private Rectangle rec;
 
-    public SoundPlayer flap_sound,pong_sound,point_sound;
-    public Dragon(float x, float y, float w, float h) {
+    public SoundPlayer flap_sound,pong_sound,point_sound,game_sound;
+
+    public Entity() {
+        game_sound=new SoundPlayer(new File("image/game0.wav"));
+    }
+
+    public Entity(float x, float y, float w, float h) {
         super(x, y, h, w);
         rec=new Rectangle((int) (x+(w/2)), (int) y, (int) w/2, (int) h);
         flap_sound=new SoundPlayer(new File("image/fap.wav"));
@@ -58,7 +63,10 @@ public class Dragon extends Objects {
 
     public void fly(){
         vecto=-3.9f;
-        flap_sound.play();
+        if (allowSound){
+            flap_sound.play();
+        }
+
     }
     public void unfly(){
         vecto=0.3f;

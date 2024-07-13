@@ -1,6 +1,6 @@
 package view;
 
-import model.Dragon;
+import model.Entity;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -21,8 +21,9 @@ public abstract class GameScreen extends JFrame implements java.awt.event.MouseL
     private GameThread G_Thread;
 
     public Animation iconMap,iconDragon,animationTap,animationHold,animationFollow;
-    public Dragon maph,dragonh,howToPlay;
+    public Entity maph,dragonh,howToPlay;
     public BufferedImage dragonImage,mapImage,tapImage,holdImage,followImage;
+
 
     public GameScreen(int w, int h){
         Toolkit toolkit =this.getToolkit();
@@ -36,8 +37,8 @@ public abstract class GameScreen extends JFrame implements java.awt.event.MouseL
     }
     public void menu(){
         try {
-            dragonImage = ImageIO.read(new File("image/dragonchoose.jpg"));
-            mapImage = ImageIO.read(new File("image/map.jpg"));
+            dragonImage = ImageIO.read(new File("image/dragonchoose.png"));
+            mapImage = ImageIO.read(new File("image/setting.png"));
             tapImage=ImageIO.read(new File("image/tap.png"));
             followImage=ImageIO.read(new File("image/follow.png"));
             holdImage=ImageIO.read(new File("image/hold.png"));
@@ -51,17 +52,17 @@ public abstract class GameScreen extends JFrame implements java.awt.event.MouseL
 
         AFrameOnImage frameDragon,frameMap,frameTap,frameHold,frameFollow;
 
-        frameMap = new AFrameOnImage(0, 0, 50, 35);
+        frameMap = new AFrameOnImage(0, 0, 54, 54);
         iconMap.AddFrame(frameMap);
-        maph=new Dragon(500,510,50,35);
+        maph=new Entity(250,500,54,54);
 
         frameDragon = new AFrameOnImage(0, 0, 50, 55);
         iconDragon.AddFrame(frameDragon);
-        dragonh=new Dragon(250,500,50,55);
+        dragonh=new Entity(500,500,50,55);
 
         frameTap = new AFrameOnImage(0,0,40,40);
         animationTap.AddFrame(frameTap);
-        howToPlay=new Dragon(385,315,40,40);
+        howToPlay=new Entity(385,315,40,40);
 
         frameHold = new AFrameOnImage(0,0,40,40);
         animationHold.AddFrame(frameHold);

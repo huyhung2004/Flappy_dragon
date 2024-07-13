@@ -1,23 +1,26 @@
 package Controll;
 
 import model.Columns;
-import model.Dragon;
+import model.Entity;
 import view.AFrameOnImage;
 import view.Animation;
-import view.GamePanel;
+import view.menu.GamePanel;
 import view.GameScreen;
+import view.menu.Setting;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+
+import static view.Objects.allowSound;
+
 
 public class flappy_follow extends GameScreen {
 
     private BufferedImage dragon_image;
-    private Dragon dragonn;
+    private Entity dragonn;
 
     private Animation dragon_animation;
 
@@ -27,11 +30,19 @@ public class flappy_follow extends GameScreen {
     private int gameover_Screen = 2;
     private int gameplay_Screen = 1;
     private int current_Screen = begin_Screen;
+    private int max;
 
     public flappy_follow() {
         super(750, 600);
         stt=2;
         try {
+            BufferedReader reader = new BufferedReader(new FileReader("image/HighscoreFollow.txt"));
+            String maxStr = reader.readLine();
+            if (maxStr != null) {
+                max = Integer.parseInt(maxStr);
+            }
+            reader.close();
+
             dragon_image = ImageIO.read(new File("image/dragon3.png"));
         } catch (IOException e) {
         }
@@ -40,7 +51,7 @@ public class flappy_follow extends GameScreen {
         f = new AFrameOnImage(0, 25, 111, 49);
         dragon_animation.AddFrame(f);
         menu();
-        dragonn = new Dragon(350, 250, 111, 51);
+        dragonn = new Entity(350, 250, 111, 51);
         columns = new Columns();
         BeginGame();
     }
@@ -56,6 +67,14 @@ public class flappy_follow extends GameScreen {
     @Override
     public void GAME_UPDATE() {
 
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("image/HighscoreFollow.txt"));
+            writer.write(String.valueOf(max));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if (current_Screen == begin_Screen) {
             reSetgame();
 
@@ -65,7 +84,7 @@ public class flappy_follow extends GameScreen {
             for (int i = 0; i < Columns.size; i++) {
                 if (dragonn.getRec().intersects(columns.getColumn(i).getRec())){
                     current_Screen = gameover_Screen;
-                    if (current_Screen==gameover_Screen){
+                    if (current_Screen==gameover_Screen&&allowSound){
                         dragonn.pong_sound.play();
                     }
                 }
@@ -73,7 +92,10 @@ public class flappy_follow extends GameScreen {
             for (int i = 0; i < Columns.size; i++) {
                 if (dragonn.getPosX()>columns.getColumn(i).getPosX()&& !columns.getColumn(i).getBehinddragon()&&i%2==0){
                     point++;
-                    dragonn.point_sound.play();
+                    if (max<=point) max=point;
+                    if (allowSound){
+                        dragonn.point_sound.play();
+                    }
                     columns.getColumn(i).setBehinddragon(true);
                 }
             }
@@ -84,8 +106,8 @@ public class flappy_follow extends GameScreen {
 
     @Override
     public void GAME_PAINT(Graphics2D g2) {
-        g2.setColor(Color.decode("#b8daef"));
-        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
+//        g2.setColor(Color.decode("#b8daef"));
+//        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
         columns.paint(g2);
 
 //        g2.setColor(Color.BLACK); // Màu viền
@@ -108,6 +130,7 @@ public class flappy_follow extends GameScreen {
         if (current_Screen==gameplay_Screen || current_Screen==gameover_Screen){
             g2.setColor(Color.red);
             g2.drawString("POINT:"+point,30,40);
+            g2.drawString("MAX: "+max,30,60);
         }
     }
 
@@ -115,11 +138,11 @@ public class flappy_follow extends GameScreen {
     public void MOUSE_ACTION(MouseEvent e, int Event) {
         if (e.getY() > (CUSTOM_HEIGHT *11 )/ 12 && current_Screen==begin_Screen) {
             if (e.getX()>CUSTOM_WIDTH/2){
-                setVisible(false);
-
-            }else {
-                setVisible(false);
+                dispose();
                 new GamePanel();
+            }else {
+                dispose();
+                new Setting();
             }
 
         } else {

@@ -1,24 +1,26 @@
 package Controll;
 
 import model.Columns;
-import model.Dragon;
+import model.Entity;
 import view.AFrameOnImage;
 import view.Animation;
-import view.GamePanel;
+import view.menu.GamePanel;
 import view.GameScreen;
+import view.menu.Setting;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+
+import static view.Objects.allowSound;
 
 public class flappy_hold extends GameScreen {
     private boolean mouseIsPressed = false;
     private long mousePressedTime = 0;
     private BufferedImage dragon_image;
-    private Dragon dragonn;
+    private Entity dragonn;
     private int point=0;
     private Animation dragon_animation;
 
@@ -28,12 +30,19 @@ public class flappy_hold extends GameScreen {
     private int gameplay_Screen = 1;
     private int current_Screen = begin_Screen;
     private Thread hold;
-
+    private int max;
 
     public flappy_hold() {
         super(750, 600);
         stt=1;
         try {
+            BufferedReader reader = new BufferedReader(new FileReader("image/HighscoreHold.txt"));
+            String maxStr = reader.readLine();
+            if (maxStr != null) {
+                max = Integer.parseInt(maxStr);
+            }
+            reader.close();
+
             dragon_image = ImageIO.read(new File("image/dragon2.png"));
         } catch (IOException e) {
         }
@@ -49,7 +58,7 @@ public class flappy_hold extends GameScreen {
 
 
 
-        dragonn = new Dragon(350, 250, 108, 30);
+        dragonn = new Entity(350, 250, 108, 30);
         columns = new Columns();
         BeginGame();
     }
@@ -83,6 +92,14 @@ public class flappy_hold extends GameScreen {
     @Override
     public void GAME_UPDATE() {
 
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("image/HighscoreHold.txt"));
+            writer.write(String.valueOf(max));
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if (current_Screen == begin_Screen) {
             reSetgame();
 
@@ -98,7 +115,7 @@ public class flappy_hold extends GameScreen {
             for (int i = 0; i < Columns.size; i++) {
                 if (dragonn.getRec().intersects(columns.getColumn(i).getRec())){
                     current_Screen=gameover_Screen;
-                    if (current_Screen==gameover_Screen){
+                    if (current_Screen==gameover_Screen&&allowSound){
                         dragonn.pong_sound.play();
                     }
                 }
@@ -107,7 +124,10 @@ public class flappy_hold extends GameScreen {
                 if (dragonn.getPosX()>columns.getColumn(i).getPosX()&& !columns.getColumn(i).getBehinddragon()&&i%2==0){
 
                     point++;
-                    dragonn.point_sound.play();
+                    if (max<=point) max=point;
+                    if (allowSound){
+                        dragonn.point_sound.play();
+                    }
                     columns.getColumn(i).setBehinddragon(true);
                 }
             }
@@ -118,8 +138,8 @@ public class flappy_hold extends GameScreen {
 
     @Override
     public void GAME_PAINT(Graphics2D g2) {
-        g2.setColor(Color.decode("#b8daef"));
-        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
+//        g2.setColor(Color.decode("#b8daef"));
+//        g2.fillRect(0,0,CUSTOM_WIDTH,CUSTOM_HEIGHT);
         columns.paint(g2);
 
 //        g2.setColor(Color.BLACK); // Màu viền
@@ -142,6 +162,7 @@ public class flappy_hold extends GameScreen {
         if (current_Screen==gameplay_Screen || current_Screen==gameover_Screen){
             g2.setColor(Color.red);
             g2.drawString("POINT:"+point,30,40);
+            g2.drawString("MAX: "+max,30,60);
         }
     }
 
@@ -149,11 +170,11 @@ public class flappy_hold extends GameScreen {
     public void MOUSE_ACTION(MouseEvent e, int Event) {
         if (e.getY() > (CUSTOM_HEIGHT *11 )/ 12 && current_Screen==begin_Screen) {
             if (e.getX()>CUSTOM_WIDTH/2){
-                setVisible(false);
-
-            }else {
-                setVisible(false);
+                dispose();
                 new GamePanel();
+            }else {
+                dispose();
+                new Setting();
             }
 
         } else {

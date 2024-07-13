@@ -1,14 +1,12 @@
 package view;
 
 import java.io.File;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+import javax.sound.sampled.*;
 
 public class SoundPlayer {
     
     private Clip clip;
+    private static FloatControl volumeControl;
     
     public SoundPlayer(File path){
         try{
@@ -27,7 +25,11 @@ public class SoundPlayer {
             AudioInputStream dais = AudioSystem.getAudioInputStream(decodeFormat, ais);
             clip = AudioSystem.getClip();
             clip.open(dais);
-        }catch(Exception e){}
+
+            volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
     public void play(){
         if(clip !=null){
@@ -36,6 +38,15 @@ public class SoundPlayer {
             clip.start();
         }
     }
+    public void playLoop() {
+        if (clip != null) {
+            clip.setFramePosition(0);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        } else {
+            System.out.println("Clip is null, cannot play.");
+        }
+    }
+
     public void stop(){
         if(clip.isRunning()) clip.stop();
     }
@@ -43,4 +54,5 @@ public class SoundPlayer {
     public void close(){
         clip.close();
     }
+
 }

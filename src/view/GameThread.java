@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 public class GameThread extends JPanel implements Runnable{
@@ -12,13 +15,20 @@ public class GameThread extends JPanel implements Runnable{
     
     private Thread thread;
 
-    public static int FPS = 70;
+    public static int FPS = 72;
     
-    private BufferedImage buffImage;
+    private BufferedImage buffImage,backgroundImage;
 
     private int MasterWidth, MasterHeight;
     
     public GameThread(GameScreen context){
+
+        try {
+            // Đọc ảnh từ tệp
+            backgroundImage = ImageIO.read(new File("image/2.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.context = context;
 
         MasterWidth = context.CUSTOM_WIDTH;
@@ -31,8 +41,11 @@ public class GameThread extends JPanel implements Runnable{
         thread.start();
     }
     public void paint(Graphics g){
-        g.setColor(Color.white);
-        g.fillRect(0, 0, context.CUSTOM_WIDTH, context.CUSTOM_HEIGHT);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, 750, 600, this);
+        }
+//        g.setColor(Color.);
+//        g.fillRect(0, 0, context.CUSTOM_WIDTH, context.CUSTOM_HEIGHT);
         Graphics2D g2 = (Graphics2D)g;
         if(buffImage!=null){
             g2.drawImage(buffImage, 0, 0, this);
